@@ -1,0 +1,60 @@
+Plan van Aanpak
+
+Remote Mouse Controller App
+
+1. Inleiding
+Voor dit project ga ik een app maken waarmee je de muis van je laptop kunt bedienen via je telefoon. Het idee is dat je telefoon dan als een soort touchpad werkt, net zoals het touchpad op een laptop maar dan draadloos. Dit kan bijvoorbeeld handig zijn als je een presentatie geeft en niet steeds naar je laptop wil lopen, of gewoon als je lui op de bank zit.
+De app bestaat uit twee delen: een app op de telefoon en een klein programma op de laptop. De twee apparaten moeten wel op hetzelfde wifi-netwerk zitten, want de verbinding gaat via het lokale netwerk. Ik ga dit project alleen maken en ik heb ongeveer 6 weken de tijd.
+
+
+2. Probleemstelling
+Het probleem is eigenlijk dat je altijd fysiek bij je laptop moet zijn om de muis te gebruiken. Als je een film kijkt of een presentatie geeft, is dat best onhandig. Er bestaan al apps zoals "Remote Mouse" in de App Store, maar die zijn betaald of hebben veel advertenties. Ik wil zelf iets maken dat gratis is en precies doet wat ik wil.
+De hoofdvraag van dit project is:
+"Hoe kan ik een app maken waarmee ik via mijn telefoon de muis van mijn laptop kan bedienen?"
+
+Deelvragen die daarbij horen zijn: hoe stuur ik gegevens van de telefoon naar de laptop, hoe zet ik die gegevens om naar muisbewegingen, en hoe zorg ik dat het niet te traag is?
+
+
+3. Doelstelling
+Aan het einde van dit project wil ik een werkende app hebben die je op je telefoon kunt openen en waarmee je dan de muis van je laptop kunt besturen. De volgende dingen moeten in ieder geval werken:
+-	De muis beweegt soepel als je met je vinger over het scherm van je telefoon beweegt
+-	Je kunt klikken (links en rechts)
+-	Je kunt scrollen door met twee vingers te vegen
+-	De app werkt op Android (iOS is een bonus als er tijd voor is)
+-	De verbinding is beveiligd met een simpele pincode zodat niet iedereen zomaar kan meekijken
+
+
+4. Aanpak en werkwijze
+Ik ga het project opdelen in een aantal stappen. Ik begin met uitzoeken welke technologie ik ga gebruiken, daarna ga ik beide delen van de app bouwen en aan het einde test ik alles en maak ik het af.
+4.1 Technologiekeuze
+Ik ga onderzoeken welke technologie het meest geschikt is. Voor de communicatie tussen telefoon en laptop denk ik aan WebSockets omdat die snel zijn en in twee richtingen kunnen communiceren. Voor de telefoon-app ga ik waarschijnlijk een webpagina maken die in de browser van de telefoon draait, zodat je geen app hoeft te installeren uit de app store. Dat is makkelijker.
+Voor het programma op de laptop ga ik Python gebruiken, want dat ken ik al en er zijn goede bibliotheken voor het aansturen van de muis, zoals pyautogui. De server die de berichten ontvangt ga ik ook in Python schrijven.
+
+4.2 Laptop-programma bouwen
+Als eerste ga ik het programma op de laptop maken. Dit programma moet op de achtergrond draaien en wachten totdat de telefoon verbinding maakt. Als er een bericht binnenkomt, zet het programma dat om naar een muisbeweging of klik.
+Ik ga ook een simpele pincode toevoegen zodat niet zomaar iedereen verbinding kan maken. Als iemand het verkeerde wachtwoord invoert, wordt de verbinding direct verbroken.
+4.3 Telefoon-interface bouwen
+
+Daarna bouw ik de interface op de telefoon. Dit wordt een webpagina met een groot aanraakgebied in het midden dat werkt als touchpad. Onderin komen twee knoppen voor links- en rechtsklikken. Als je met je vinger beweegt op het aanraakgebied, stuurt de pagina berichten naar de laptop via WebSocket. Ik moet ook goed nadenken over de gevoeligheid, want als de muis te snel of te langzaam beweegt is het onprettig.
+4.4 Testen en afmaken
+
+Als alles werkt ga ik het uitgebreid testen. Ik wil kijken hoe snel de verbinding is (latency), of het stabiel blijft als je een tijdje gebruikt, en of het ook werkt op verschillende apparaten. Eventuele bugs los ik op en daarna schrijf ik de documentatie.
+
+
+5. Planning
+Hieronder staat de planning per week. Ik heb 6 weken de tijd voor dit project.
+-	Week 1: Onderzoek doen naar technologie, WebSockets uitproberen, keuzes maken
+-	Week 2: Het laptop-programma bouwen: server + muisbesturing
+-	Week 3: De telefoon-interface bouwen: touchpad, knoppen, verbinding
+-	Week 4: Alles samenvoegen en de pincode-beveiliging toevoegen
+
+
+6. Risico's en moeilijkheden
+Er zijn een paar dingen die misschien lastig worden. Ten eerste kan de vertraging (latency) een probleem zijn: als de muis te laat reageert is de app niet fijn in gebruik. Ik ga dit oplossen door de berichten zo klein mogelijk te houden en alleen de beweging te sturen als die groot genoeg is.
+Ten tweede weet ik nog niet zeker of iOS ook goed werkt met de touch-events in de browser. Apple heeft soms andere beperkingen dan Android. Als dit echt niet werkt focus ik me alleen op Android.
+Een ander risico is dat ik te veel tijd kwijt ben aan kleine details, zoals het er mooi uitzien, terwijl de basiswerking nog niet af is. Ik ga daarom eerst zorgen dat alles werkt, en daarna pas mooier maken.
+
+
+7. Conclusie
+In dit plan van aanpak heb ik beschreven wat ik ga maken, waarom, hoe ik dat ga doen en wanneer. Ik denk dat dit een haalbaar project is in 6 weken. Het is een combinatie van netwerken, een webinterface en systeemprogrammeren, wat het uitdagend maar ook interessant maakt.
+Als het goed werkt is het resultaat een echte, bruikbare tool die ik zelf ook ga gebruiken. Dat maakt het voor mij extra motiverend om dit goed af te maken
