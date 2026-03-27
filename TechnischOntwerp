@@ -1,0 +1,49 @@
+Technisch Ontwerp – Remote Mouse Controller App
+1. Inleiding
+
+Dit technisch ontwerp beschrijft hoe de Remote Mouse Controller App technisch is opgebouwd.
+De applicatie maakt het mogelijk om een laptopmuis te bedienen via een smartphone.
+
+2. Architectuur
+
+Het systeem gebruikt een client-server architectuur.
+
+Client: smartphone browser (touchpad interface)
+Server: Python applicatie op de laptop
+
+De communicatie verloopt via het lokale wifi netwerk.
+
+3. Gebruikte technologieën
+Frontend: HTML, CSS, JavaScript
+Backend: Python
+Communicatie: WebSockets
+Muisbesturing: Python library voor muisinput
+4. Werking van het systeem
+Verbinding
+Smartphone opent webpagina
+Gebruiker voert pincode in
+WebSocket verbinding wordt gemaakt
+Server controleert pincode
+Muisbediening
+Vingerbeweging → muisbeweging
+Knoppen → muisklik
+Twee vingers → scrollen
+
+De smartphone stuurt events naar de server, waarna de server de muis aanstuurt.
+
+5. Datacommunicatie
+
+De client stuurt berichten naar de server:
+
+muisbeweging (dx, dy)
+klikactie
+scrollactie
+authenticatie (pincode)
+6. Beveiliging
+Verbinding alleen mogelijk met pincode
+Werkt alleen binnen lokaal netwerk
+7. Deployment (gebruik)
+Start Python server op laptop
+Verbind smartphone met hetzelfde wifi netwerk
+Open webinterface
+Maak verbinding

@@ -1,0 +1,114 @@
+Functioneel Ontwerp – Remote Mouse Controller App
+1. Inleiding
+
+De Remote Mouse Controller App maakt het mogelijk om de muis van een laptop te bedienen via een smartphone.
+De smartphone werkt hierbij als een draadloos touchpad.
+
+De applicatie bestaat uit:
+
+een webpagina op de smartphone
+een programma op de laptop
+
+De communicatie verloopt via wifi.
+
+2. Doel van het systeem
+
+Het systeem moet ervoor zorgen dat een gebruiker:
+
+de muis op afstand kan bedienen
+kan klikken en scrollen via de telefoon
+veilig verbinding kan maken met een pincode
+3. Gebruiker
+
+Er is één gebruiker:
+
+Gebruiker
+
+heeft een laptop en smartphone
+wil de laptop bedienen zonder deze aan te raken
+4. Functionele eisen
+4.1 Verbinding maken
+Gebruiker opent de webpagina op de smartphone
+Voert IP-adres en pincode in
+Het systeem controleert de pincode
+Bij juiste pincode wordt verbinding gemaakt
+Bij foutieve pincode wordt toegang geweigerd
+4.2 Muis bedienen
+Beweging van de vinger wordt omgezet naar muisbeweging
+De muis reageert direct en vloeiend
+4.3 Klikken
+Linkermuisklik mogelijk
+Rechtermuisklik mogelijk
+4.4 Scrollen
+Twee-vinger beweging zorgt voor scrollen
+4.5 Verbinding beheren
+Gebruiker kan verbinding verbreken
+Verbinding stopt automatisch bij verlies van wifi
+5. Niet-functionele eisen
+
+Performance
+
+Zo weinig mogelijk vertraging
+
+Gebruiksvriendelijkheid
+
+Simpele interface
+Groot touchpad
+
+Compatibiliteit
+
+Werkt in moderne mobiele browsers
+Laptopprogramma werkt op Windows
+
+Beveiliging
+
+Toegang alleen met pincode
+6. Systeemoverzicht
+
+Het systeem bestaat uit:
+
+Smartphone (client)
+Laptop (server)
+
+De smartphone stuurt:
+
+muisbewegingen
+klikacties
+scrollacties
+pincode
+7. Gebruikersinterface
+Verbindingsscherm
+IP-adres invoer
+Pincode invoer
+Verbind knop
+Hoofdscherm
+Groot touchpad
+Linksklik knop
+Rechtermuisklik knop
+Verbindingsstatus
+8. Belangrijkste processen
+
+Verbinden
+
+Gebruiker opent webpagina
+Voert gegevens in
+Verbinding wordt gecontroleerd
+Bij succes kan de muis worden bediend
+
+Muis bedienen
+
+Gebruiker beweegt vinger
+Beweging wordt verstuurd
+Laptop beweegt muis
+9. Acceptatiecriteria
+
+Het systeem werkt correct wanneer:
+
+de muis via de smartphone bestuurbaar is
+klikken en scrollen werken
+de verbinding beveiligd is met een pincode
+de bediening soepel aanvoelt
+10. Toekomstige uitbreidingen
+toetsenbordbediening toevoegen
+ondersteuning voor meerdere apparaten
+extra beveiliging
