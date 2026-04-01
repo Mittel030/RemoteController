@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  # Serveert de HTML-frontend aan je telefoon
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./public:/usr/share/nginx/html:ro
+
+  # WebSocket server: ontvangt touch-commando's en stuurt ze door naar de robotjs helper
+  ws-server:
+    build: ./ws-server
+    ports:
+      - "3000:3000"
+    environment:
+      - ROBOT_HELPER_URL=http://host.docker.internal:3001
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
