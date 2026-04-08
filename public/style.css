@@ -1,0 +1,78 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f0f13; --surface: #1a1a24; --border: #2e2e42;
+  --accent: #7c6ff7; --accent-dim: #4a4580;
+  --text: #e8e6ff; --text-muted: #6b6880;
+  --pad-bg: #141420; --btn-bg: #1e1e2e; --btn-active: #2e2e46;
+  --radius: 16px;
+}
+html, body { height: 100%; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow: hidden; touch-action: none; -webkit-tap-highlight-color: transparent; user-select: none; }
+#app { display: flex; flex-direction: column; height: 100dvh; padding: 12px; gap: 10px; }
+
+/* Sessiecode scherm */
+#code-screen { display: flex; align-items: center; justify-content: center; flex: 1; }
+#code-box { display: flex; flex-direction: column; align-items: center; gap: 16px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 40px 32px; max-width: 340px; width: 100%; text-align: center; }
+#code-box h1 { font-size: 22px; font-weight: 600; color: var(--text); }
+#code-box p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+#code-input { width: 100%; padding: 14px; font-size: 24px; font-weight: 700;
+  text-align: center; letter-spacing: 6px; text-transform: uppercase;
+  background: var(--pad-bg); border: 1px solid var(--border); border-radius: 12px;
+  color: var(--text); outline: none; transition: border-color 0.2s; }
+#code-input:focus { border-color: var(--accent); }
+#code-input::placeholder { color: var(--text-muted); letter-spacing: 4px; font-weight: 400; font-size: 16px; }
+#server-input { width: 100%; padding: 12px; font-size: 13px;
+  background: var(--pad-bg); border: 1px solid var(--border); border-radius: 12px;
+  color: var(--text); outline: none; transition: border-color 0.2s; text-align: center; }
+#server-input:focus { border-color: var(--accent); }
+#server-input::placeholder { color: var(--text-muted); }
+#code-btn { width: 100%; padding: 14px; font-size: 15px; font-weight: 600;
+  background: var(--accent); color: #fff; border: none; border-radius: 12px;
+  cursor: pointer; transition: opacity 0.15s; }
+#code-btn:active { opacity: 0.8; }
+#code-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.error-text { color: #e24b4a; font-size: 12px; min-height: 16px; }
+.hidden { display: none !important; }
+
+/* Touchpad scherm */
+#touchpad-screen { display: flex; flex-direction: column; flex: 1; gap: 10px; }
+#statusbar { display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; }
+#dot { width: 8px; height: 8px; border-radius: 50%; background: #e24b4a; flex-shrink: 0; transition: background 0.3s; }
+#dot.connected { background: #63c940; }
+#status-text { flex: 1; color: var(--text-muted); }
+#session-code { font-size: 11px; color: var(--accent); font-weight: 600; letter-spacing: 2px; }
+#touchpad { flex: 1; background: var(--pad-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); position: relative; touch-action: none;
+  transition: border-color 0.15s, background 0.15s; overflow: hidden; }
+#touchpad.active { border-color: var(--accent-dim); background: #161624; }
+#touchpad.scroll-mode { border-color: #4a8bd4; }
+.ripple { position: absolute; width: 48px; height: 48px; border-radius: 50%;
+  background: var(--accent); opacity: 0; transform: translate(-50%, -50%) scale(0);
+  animation: ripple-anim 0.5s ease-out forwards; pointer-events: none; }
+@keyframes ripple-anim {
+  0%   { opacity: 0.35; transform: translate(-50%, -50%) scale(0); }
+  100% { opacity: 0;    transform: translate(-50%, -50%) scale(1); }
+}
+#pad-hint { position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px; pointer-events: none; transition: opacity 0.4s; }
+#pad-hint svg { opacity: 0.15; }
+#pad-hint span { font-size: 12px; color: var(--text-muted); opacity: 0.5; }
+#touchpad.active #pad-hint { opacity: 0; }
+#scroll-hint { position: absolute; top: 10px; right: 14px; font-size: 11px;
+  color: #4a8bd4; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+#touchpad.scroll-mode #scroll-hint { opacity: 1; }
+#buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.btn { background: var(--btn-bg); border: 1px solid var(--border); border-radius: 12px;
+  color: var(--text); font-size: 13px; font-weight: 500; padding: 16px 8px; text-align: center;
+  cursor: pointer; transition: background 0.1s, border-color 0.1s, transform 0.08s;
+  touch-action: manipulation; display: flex; flex-direction: column; align-items: center;
+  gap: 4px; -webkit-tap-highlight-color: transparent; }
+.btn:active, .btn.pressed { background: var(--btn-active); border-color: var(--accent-dim); transform: scale(0.96); }
+.btn svg { opacity: 0.6; }
+#scrollbar { width: 3px; background: var(--accent); position: absolute; right: 4px;
+  top: 10%; height: 20%; border-radius: 2px; opacity: 0; transition: opacity 0.2s, top 0.1s; }
+#touchpad.scroll-mode #scrollbar { opacity: 0.6; }
