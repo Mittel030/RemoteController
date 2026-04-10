@@ -18,9 +18,8 @@
         <rect x="18" y="16" width="20" height="12" rx="3" stroke="#7c6ff7" stroke-width="1.5" opacity="0.4"/>
       </svg>
       <h1>Touchpad</h1>
-      <p>Voer de server-URL en sessiecode in die op je laptop staan</p>
-      <input type="url" id="server-input" placeholder="https://xyz.trycloudflare.com" autocomplete="off" spellcheck="false" />
-      <input type="text" id="code-input" maxlength="10" placeholder="CODE" autocomplete="off" spellcheck="false" />
+      <p>Voer de sessiecode in die op je laptop staat</p>
+      <input type="text" id="code-input" maxlength="10" placeholder="CODE" autocomplete="off" spellcheck="false" autofocus />
       <button id="code-btn">Verbinden</button>
       <p id="code-error" class="error-text"></p>
     </div>
@@ -56,6 +55,13 @@
         </svg>
         Links klik
       </button>
+      <button class="btn" id="btn-drag">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 3v14M3 10h14" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M7 6l3-3 3 3M7 14l3 3 3-3M6 7l-3 3 3 3M14 7l3 3-3 3" stroke="var(--text)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Slepen
+      </button>
       <button class="btn" id="btn-double">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
           <circle cx="7" cy="10" r="3.5" stroke="var(--text)" stroke-width="1.5"/>
@@ -80,7 +86,6 @@
 
   const codeScreen = document.getElementById("code-screen");
   const touchpadScreen = document.getElementById("touchpad-screen");
-  const serverInput = document.getElementById("server-input");
   const codeInput = document.getElementById("code-input");
   const codeBtn = document.getElementById("code-btn");
   const codeError = document.getElementById("code-error");
@@ -88,32 +93,30 @@
   const statusText = document.getElementById("status-text");
   const sessionCode = document.getElementById("session-code");
 
-  // Herstel opgeslagen server URL
-  const savedUrl = localStorage.getItem("touchpad-server-url");
-  if (savedUrl) serverInput.value = savedUrl;
-
   function showError(msg) { codeError.textContent = msg; }
 
+  // URL params lezen: ?server=wss://...&code=ABC123
+  const urlParams = new URLSearchParams(location.search);
+  const paramServer = urlParams.get("server");
+  const paramCode = urlParams.get("code");
+
+  function getWsUrl() {
+    if (paramServer) return paramServer;
+    const proto = location.protocol === "https:" ? "wss:" : "ws:";
+    return proto + "//" + location.host;
+  }
+
+  // Auto-connect als server + code in URL staan
+  if (paramCode) {
+    codeInput.value = paramCode;
+  }
+
   function connectWithCode() {
-    let serverUrl = serverInput.value.trim().replace(/\/+$/, "");
     const code = codeInput.value.trim().toUpperCase();
 
-    if (!serverUrl) { showError("Vul de server-URL in"); return; }
     if (code.length < 4) { showError("Code moet minstens 4 tekens zijn"); return; }
 
-    // HTTP(S) naar WS(S) converteren
-    let wsUrl;
-    if (serverUrl.startsWith("https://")) {
-      wsUrl = "wss://" + serverUrl.slice(8);
-    } else if (serverUrl.startsWith("http://")) {
-      wsUrl = "ws://" + serverUrl.slice(7);
-    } else if (serverUrl.startsWith("wss://") || serverUrl.startsWith("ws://")) {
-      wsUrl = serverUrl;
-    } else {
-      wsUrl = "wss://" + serverUrl;
-    }
-
-    localStorage.setItem("touchpad-server-url", serverUrl);
+    const wsUrl = getWsUrl();
     showError("");
     codeBtn.disabled = true;
     codeBtn.textContent = "Verbinden…";
@@ -168,7 +171,11 @@
 
   codeBtn.addEventListener("click", () => connectWithCode());
   codeInput.addEventListener("keydown", (e) => { if (e.key === "Enter") connectWithCode(); });
-  serverInput.focus();
+
+  // Auto-connect als code + server in URL staan
+  if (paramServer && paramCode && paramCode.length >= 4) {
+    connectWithCode();
+  }
 
   function send(data) { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(data)); }
 
@@ -176,8 +183,23 @@
   const pad = document.getElementById("touchpad");
   const scrollbar = document.getElementById("scrollbar");
   let lastX = null, lastY = null, lastX2 = null, lastY2 = null, isScrolling = false;
+  let isDragging = false;
 
   function midpoint(t1, t2) { return { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 }; }
+
+  // Drag toggle knop
+  const btnDrag = document.getElementById("btn-drag");
+  btnDrag.addEventListener("click", () => {
+    isDragging = !isDragging;
+    if (isDragging) {
+      send({ type: "mousedown" });
+      btnDrag.classList.add("active-btn");
+      btnDrag.querySelector("svg").style.opacity = "1";
+    } else {
+      send({ type: "mouseup" });
+      btnDrag.classList.remove("active-btn");
+    }
+  });
 
   pad.addEventListener("touchstart", (e) => {
     e.preventDefault(); pad.classList.add("active");
@@ -199,7 +221,12 @@
     e.preventDefault();
     if (e.touches.length === 1 && !isScrolling) {
       const dx = e.touches[0].clientX - lastX; const dy = e.touches[0].clientY - lastY;
-      send({ type: "move", dx, dy });
+      // Bij drag: stuur drag-move, anders gewoon move
+      if (isDragging) {
+        send({ type: "dragmove", dx, dy });
+      } else {
+        send({ type: "move", dx, dy });
+      }
       lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
     } else if (e.touches.length === 2 && isScrolling) {
       const mid = midpoint(e.touches[0], e.touches[1]);

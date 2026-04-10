@@ -5,7 +5,7 @@ const path = require("path");
 
 const PORT = process.env.PORT || 3000;
 const MAX_COMMANDS_PER_SEC = 120;
-const ALLOWED_TYPES = new Set(["move", "click", "rightclick", "doubleclick", "scroll"]);
+const ALLOWED_TYPES = new Set(["move", "click", "rightclick", "doubleclick", "scroll", "mousedown", "mouseup", "dragmove"]);
 
 const app = express();
 const server = http.createServer(app);

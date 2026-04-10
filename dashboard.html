@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Touchpad — Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f13; --surface: #1a1a24; --border: #2e2e42;
+      --accent: #7c6ff7; --accent-dim: #4a4580;
+      --text: #e8e6ff; --text-muted: #6b6880;
+      --green: #63c940; --red: #e24b4a; --yellow: #e2b83a;
+    }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    }
+    .container {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
+      padding: 48px; max-width: 480px; width: 100%; text-align: center;
+    }
+    .logo {
+      width: 64px; height: 64px; margin: 0 auto 20px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    }
+    .logo svg { width: 36px; height: 36px; }
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 32px; }
+
+    /* Status cards */
+    .status-row { display: flex; gap: 12px; margin-bottom: 24px; }
+    .status-card {
+      flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
+      padding: 16px 12px; text-align: center;
+    }
+    .status-card .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .status-card .value { font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .dot.green { background: var(--green); box-shadow: 0 0 8px rgba(99,201,64,0.4); }
+    .dot.yellow { background: var(--yellow); box-shadow: 0 0 8px rgba(226,184,58,0.3); }
+    .dot.red { background: var(--red); }
+
+    /* Code display */
+    .code-section { margin-bottom: 28px; }
+    .code-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+    .code-display {
+      font-size: 40px; font-weight: 800; letter-spacing: 10px; color: var(--accent);
+      font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+      padding: 16px; background: var(--bg); border: 2px solid var(--accent-dim);
+      border-radius: 14px; user-select: all;
+    }
+
+    /* QR section */
+    .qr-section { margin-bottom: 24px; }
+    .qr-label { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+    #qr-canvas {
+      border-radius: 12px; background: #fff; padding: 12px;
+      display: inline-block;
+    }
+    #qr-canvas canvas { display: block; }
+    .qr-hidden { display: none !important; }
+
+    /* Phone link */
+    .link-section { margin-bottom: 20px; }
+    .link-box {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; font-size: 12px; color: var(--accent);
+      word-break: break-all; cursor: pointer; transition: border-color 0.2s;
+      position: relative;
+    }
+    .link-box:hover { border-color: var(--accent); }
+    .link-box .copied {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: var(--bg); border-radius: 10px; color: var(--green); font-weight: 600;
+      opacity: 0; transition: opacity 0.2s; pointer-events: none;
+    }
+    .link-box .copied.show { opacity: 1; }
+
+    /* Waiting text */
+    .waiting {
+      font-size: 13px; color: var(--text-muted); padding: 24px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    .footer { font-size: 11px; color: var(--text-muted); margin-top: 16px; opacity: 0.5; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">
+    <svg viewBox="0 0 36 36" fill="none">
+      <rect x="6" y="2" width="24" height="32" rx="5" stroke="#fff" stroke-width="2"/>
+      <circle cx="18" cy="28" r="2" fill="#fff" opacity="0.5"/>
+      <rect x="10" y="8" width="16" height="10" rx="3" stroke="#fff" stroke-width="1.5" opacity="0.5"/>
+    </svg>
+  </div>
+  <h1>Touchpad Remote</h1>
+  <p class="subtitle">Bedien je laptop-muis vanaf je telefoon</p>
+
+  <div class="status-row">
+    <div class="status-card">
+      <div class="label">Server</div>
+      <div class="value" id="server-status"><span class="dot green"></span> Actief</div>
+    </div>
+    <div class="status-card">
+      <div class="label">Tunnel</div>
+      <div class="value" id="tunnel-status"><span class="dot yellow"></span> Starten…</div>
+    </div>
+    <div class="status-card">
+      <div class="label">Telefoon</div>
+      <div class="value" id="phone-status"><span class="dot red"></span> Wacht…</div>
+    </div>
+  </div>
+
+  <div class="code-section">
+    <div class="code-label">SESSIECODE</div>
+    <div class="code-display" id="session-code">------</div>
+  </div>
+
+  <div id="qr-wrapper" class="qr-section qr-hidden">
+    <div class="qr-label">Scan met je telefoon camera</div>
+    <div id="qr-canvas"></div>
+  </div>
+
+  <div id="link-wrapper" class="link-section" style="display:none">
+    <div class="link-box" id="phone-link" title="Klik om te kopiëren">
+      <span id="phone-link-text"></span>
+      <div class="copied" id="copied-msg">Gekopieerd!</div>
+    </div>
+  </div>
+
+  <div class="footer">Ctrl+C in terminal om te stoppen</div>
+</div>
+
+<!-- Minimale QR code generator -->
+<script>
+// QR Code generator - basic implementation for URLs
+// Uses canvas to render
+function generateQRCanvas(text, container, size) {
+  // We'll use a simple approach: create image from an API
+  // But for offline use, embed a tiny QR lib
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+
+  // Use Google Charts QR API as fallback (works offline too via service worker)
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0, size, size);
+    container.innerHTML = "";
+    container.appendChild(canvas);
+  };
+  img.onerror = () => {
+    // API niet bereikbaar, toon alleen link
+    container.innerHTML = '<p style="color:#6b6880;font-size:12px;padding:8px;">QR niet beschikbaar</p>';
+  };
+  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&bgcolor=ffffff&color=0f0f13&margin=0`;
+}
+</script>
+
+<script>
+  const codeEl = document.getElementById("session-code");
+  const tunnelStatus = document.getElementById("tunnel-status");
+  const phoneStatus = document.getElementById("phone-status");
+  const qrWrapper = document.getElementById("qr-wrapper");
+  const qrCanvas = document.getElementById("qr-canvas");
+  const linkWrapper = document.getElementById("link-wrapper");
+  const phoneLinkText = document.getElementById("phone-link-text");
+  const phoneLink = document.getElementById("phone-link");
+  const copiedMsg = document.getElementById("copied-msg");
+
+  // Verbind met de lokale server via WebSocket voor status updates
+  const proto = location.protocol === "https:" ? "wss:" : "ws:";
+  const ws = new WebSocket(proto + "//" + location.host);
+
+  ws.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { return; }
+
+    if (msg.type === "dashboard-init") {
+      codeEl.textContent = msg.code;
+    }
+
+    if (msg.type === "tunnel-ready") {
+      tunnelStatus.innerHTML = '<span class="dot green"></span> Online';
+      const phoneUrl = msg.phoneUrl;
+      phoneLinkText.textContent = phoneUrl;
+      linkWrapper.style.display = "";
+      qrWrapper.classList.remove("qr-hidden");
+      generateQRCanvas(phoneUrl, qrCanvas, 200);
+    }
+
+    if (msg.type === "tunnel-error") {
+      tunnelStatus.innerHTML = '<span class="dot red"></span> Fout';
+    }
+
+    if (msg.type === "phone-connected") {
+      phoneStatus.innerHTML = '<span class="dot green"></span> Verbonden';
+    }
+
+    if (msg.type === "phone-disconnected") {
+      phoneStatus.innerHTML = '<span class="dot red"></span> Wacht…';
+    }
+  };
+
+  ws.onclose = () => {
+    document.getElementById("server-status").innerHTML = '<span class="dot red"></span> Gestopt';
+    tunnelStatus.innerHTML = '<span class="dot red"></span> Offline';
+  };
+
+  // Copy link on click
+  phoneLink.addEventListener("click", () => {
+    navigator.clipboard.writeText(phoneLinkText.textContent).then(() => {
+      copiedMsg.classList.add("show");
+      setTimeout(() => copiedMsg.classList.remove("show"), 1500);
+    });
+  });
+</script>
+
+</body>
+</html>

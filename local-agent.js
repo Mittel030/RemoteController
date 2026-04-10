@@ -79,9 +79,25 @@ function connect() {
         break;
 
       case "scroll": {
-        const dir = msg.dy > 0 ? "down" : "up";
-        const amount = Math.max(1, Math.abs(Math.round(msg.dy / 3)));
-        robot.scrollMouse(0, amount * (dir === "down" ? -1 : 1));
+        const dy = msg.dy || 0;
+        const amount = Math.max(1, Math.abs(Math.round(dy / 3)));
+        robot.scrollMouse(0, dy > 0 ? -amount : amount);
+        break;
+      }
+
+      case "mousedown":
+        robot.mouseToggle("down", "left");
+        break;
+
+      case "mouseup":
+        robot.mouseToggle("up", "left");
+        break;
+
+      case "dragmove": {
+        const pos = robot.getMousePos();
+        const newX = Math.round(pos.x + msg.dx * SENSITIVITY);
+        const newY = Math.round(pos.y + msg.dy * SENSITIVITY);
+        robot.moveMouse(newX, newY);
         break;
       }
     }
